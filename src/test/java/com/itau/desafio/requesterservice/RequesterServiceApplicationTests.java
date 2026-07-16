@@ -1,4 +1,4 @@
-package com.itau.desafio.requester_service;
+package com.itau.desafio.requesterservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

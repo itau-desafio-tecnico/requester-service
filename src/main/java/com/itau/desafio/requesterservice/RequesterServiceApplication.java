@@ -1,4 +1,4 @@
-package com.itau.desafio.requester_service;
+package com.itau.desafio.requesterservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
