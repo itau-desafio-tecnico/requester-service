@@ -1,6 +1,6 @@
 # requester-service
 
-Microsserviço de **gerenciamento de solicitantes** ("requesters"), escrito em **Java 21 + Spring Boot 4**. Permite cadastrar solicitantes e valida se um solicitante existe e está ativo — usado pelo [`order-service`](../order-service/README.md) como pré-condição para a criação de ordens de serviço.
+Microsserviço de **gerenciamento de solicitantes** ("requesters"), escrito em **Java 21 + Spring Boot 4**. Permite cadastrar solicitantes e valida se um solicitante existe e está ativo — usado pelo [`order-service`](https://github.com/itau-desafio-tecnico/order-service/blob/main/README.md) como pré-condição para a criação de ordens de serviço.
 
 ## Sumário
 
@@ -141,7 +141,7 @@ docker build -t requester-service .
 docker run -p 8081:8081 --env DB_HOST=... --env DB_PORT=... requester-service
 ```
 
-Este repositório não possui `docker-compose.yml` próprio — para rodar junto com o [`order-service`](../order-service/README.md), disponibilize um PostgreSQL acessível pelas variáveis `DB_*` (ex.: em uma rede Docker compartilhada) e aponte o `order-service` para `http://requester-service:8081/jv-requester-service` via `REQUESTER_SERVICE_URL`.
+Este repositório não possui `docker-compose.yml` próprio — para rodar junto com o [`order-service`](https://github.com/itau-desafio-tecnico/order-service/blob/main/README.md), disponibilize um PostgreSQL acessível pelas variáveis `DB_*` (ex.: em uma rede Docker compartilhada) e aponte o `order-service` para `http://requester-service:8081/jv-requester-service` via `REQUESTER_SERVICE_URL`.
 
 ### Local (sem Docker)
 
