@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.UUID;
@@ -36,7 +37,11 @@ public class RequesterController {
         log.info("Creating requester document={}", mask(request.document()));
         RequesterResponse requester = RequesterResponse.from(createRequesterUseCase.execute(request.document(), request.name(), request.email()));
         log.info("Requester created id={}", requester.id());
-        return ResponseEntity.created(URI.create("/requesters/"+requester.id())).body(requester);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(requester.id())
+                .toUri();
+        return ResponseEntity.created(location).body(requester);
     }
 
     @GetMapping("/{id}")
