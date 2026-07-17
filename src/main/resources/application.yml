@@ -35,7 +35,7 @@ management:
     tracing:
       export:
         otlp:
-          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+          endpoint: ${OTLP_COLLECTOR_ENDPOINT:http://localhost:4318/v1/traces}
   metrics:
     tags:
       application: ${spring.application.name}
