@@ -5,7 +5,7 @@ spring:
   application:
     name: requester-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:requesters}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:requesters}
     username: ${DB_USER:requester}
     password: ${DB_PASSWORD:requester}
   jpa:
