@@ -11,4 +11,4 @@ RUN addgroup -S app && adduser -S app -G app
 COPY --from=build /app/target/requester-service-*.jar app.jar
 USER app
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dsun.net.inetaddr.ttl=30", "-Dnetworkaddress.cache.ttl=30", "-jar", "app.jar"]
