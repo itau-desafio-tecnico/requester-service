@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/requester")
+@RequestMapping("/requesters")
 public class RequesterController {
 
     private final CreateRequesterUseCase  createRequesterUseCase;
