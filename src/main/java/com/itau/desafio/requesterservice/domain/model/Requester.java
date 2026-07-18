@@ -1,5 +1,9 @@
 package com.itau.desafio.requesterservice.domain.model;
 
+import br.com.caelum.stella.validation.CNPJValidator;
+import br.com.caelum.stella.validation.CPFValidator;
+import com.itau.desafio.requesterservice.domain.exception.DocumentInvalidException;
+
 import java.time.Instant;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -37,10 +41,27 @@ public record Requester(
     }
 
     public static Requester create (String document, String name, String email) {
+        if (!isDocumentValid(document)){
+            throw new DocumentInvalidException("Document must be a valid CPF (11 digits) or CNPJ (14 digits)");
+        }
         return new Requester(UUID.randomUUID(), document, name, email, true, Instant.now());
     }
 
     public Requester deactivate() {
         return new Requester(id, document, name, email, false, createdAt);
+    }
+
+    private static boolean isDocumentValid(String document) {
+        if (document == null || document.trim().isEmpty()) {
+            return false;
+        }
+
+        CPFValidator cpfValidator = new CPFValidator();
+        CNPJValidator cnpjValidator = new CNPJValidator();
+
+        boolean isCpfValido = cpfValidator.invalidMessagesFor(document).isEmpty();
+        boolean isCnpjValido = cnpjValidator.invalidMessagesFor(document).isEmpty();
+
+        return isCpfValido || isCnpjValido;
     }
 }
