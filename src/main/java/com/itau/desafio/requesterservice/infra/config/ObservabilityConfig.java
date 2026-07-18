@@ -12,7 +12,8 @@ public class ObservabilityConfig {
     public ObservationPredicate excludeHealthCheckObservations() {
         return (name, context) -> {
             if (context instanceof ServerRequestObservationContext serverContext) {
-                return !serverContext.getCarrier().getRequestURI().endsWith("/actuator/health");
+                String uri = serverContext.getCarrier().getRequestURI();
+                return !uri.endsWith("/actuator/health") && !uri.endsWith("/actuator/prometheus");
             }
             return true;
         };
