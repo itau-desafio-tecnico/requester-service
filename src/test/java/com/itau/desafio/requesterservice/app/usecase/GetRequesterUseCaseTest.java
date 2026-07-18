@@ -29,17 +29,17 @@ class GetRequesterUseCaseTest {
     }
 
     @Test
-    void deveRetornarSolicitanteQuandoExiste() {
-        Requester solicitante = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
-        when(repository.findById(solicitante.id())).thenReturn(Optional.of(solicitante));
+    void shouldReturnRequesterWhenExists() {
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
+        when(repository.findById(requester.id())).thenReturn(Optional.of(requester));
 
-        Requester encontrado = useCase.byId(solicitante.id());
+        Requester found = useCase.byId(requester.id());
 
-        assertThat(encontrado).isEqualTo(solicitante);
+        assertThat(found).isEqualTo(requester);
     }
 
     @Test
-    void deveLancarExcecaoQuandoNaoExiste() {
+    void shouldThrowExceptionWhenNotFound() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 

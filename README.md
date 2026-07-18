@@ -67,7 +67,7 @@ infra/
 │   └── RequesterRepositoryImpl.java      # Implementa o port RequesterRepository
 └── config/
     ├── UseCaseConfig.java                # Wiring manual dos beans de caso de uso
-    ├── ObservabilityConfig.java          # Exclui /actuator/health do tracing
+    ├── ObservabilityConfig.java          # Exclui /actuator/health e /actuator/prometheus das métricas/tracing
     └── OpenApiConfig.java                # Metadados do Swagger
 
 interfaces/rest/                      # Adapter de entrada (HTTP)

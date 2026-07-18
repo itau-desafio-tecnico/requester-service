@@ -29,14 +29,14 @@ class CreateRequesterUseCaseTest {
     }
 
     @Test
-    void deveCriarSolicitanteQuandoDocumentoNaoExiste() {
-        when(repository.existsByDocument("12345678901")).thenReturn(false);
+    void shouldCreateRequesterWhenDocumentDoesNotExist() {
+        when(repository.existsByDocument("11144477735")).thenReturn(false);
         when(repository.save(any(Requester.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Requester criado = useCase.execute("12345678901", "Maria Silva", "maria@teste.com");
+        Requester created = useCase.execute("11144477735", "Maria Silva", "maria@teste.com");
 
-        assertThat(criado.document()).isEqualTo("12345678901");
-        assertThat(criado.active()).isTrue();
+        assertThat(created.document()).isEqualTo("11144477735");
+        assertThat(created.active()).isTrue();
 
         ArgumentCaptor<Requester> captor = ArgumentCaptor.forClass(Requester.class);
         verify(repository).save(captor.capture());
@@ -44,12 +44,20 @@ class CreateRequesterUseCaseTest {
     }
 
     @Test
-    void deveRejeitarQuandoDocumentoJaExiste() {
-        when(repository.existsByDocument("12345678901")).thenReturn(true);
+    void shouldRejectWhenDocumentAlreadyExists() {
+        when(repository.existsByDocument("11144477735")).thenReturn(true);
 
-        assertThatThrownBy(() -> useCase.execute("12345678901", "Maria Silva", "maria@teste.com"))
+        assertThatThrownBy(() -> useCase.execute("11144477735", "Maria Silva", "maria@teste.com"))
                 .isInstanceOf(RequesterAlreadyExistsException.class)
-                .hasMessageContaining("12345678901");
+                .hasMessageContaining("11144477735");
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldRejectWhenDocumentHasInvalidCheckDigit() {
+        assertThatThrownBy(() -> useCase.execute("12345678901", "Maria Silva", "maria@teste.com"))
+                .isInstanceOf(com.itau.desafio.requesterservice.domain.exception.DocumentInvalidException.class);
 
         verify(repository, never()).save(any());
     }

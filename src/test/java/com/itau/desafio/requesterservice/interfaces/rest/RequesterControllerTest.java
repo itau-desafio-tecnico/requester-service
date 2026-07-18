@@ -3,6 +3,7 @@ package com.itau.desafio.requesterservice.interfaces.rest;
 import com.itau.desafio.requesterservice.app.usecase.CreateRequesterUseCase;
 import com.itau.desafio.requesterservice.app.usecase.GetRequesterUseCase;
 import com.itau.desafio.requesterservice.app.usecase.ValidateRequesterUseCase;
+import com.itau.desafio.requesterservice.domain.exception.DocumentInvalidException;
 import com.itau.desafio.requesterservice.domain.exception.RequesterAlreadyExistsException;
 import com.itau.desafio.requesterservice.domain.exception.RequesterNotFoundException;
 import com.itau.desafio.requesterservice.domain.model.Requester;
@@ -40,17 +41,17 @@ public class RequesterControllerTest {
 
     @Test
     void shouldCreateRequesterAndReturn201() throws Exception {
-        Requester requester = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
-        when(createRequesterUseCase.execute("12345678901", "Maria Silva", "maria@teste.com"))
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
+        when(createRequesterUseCase.execute("11144477735", "Maria Silva", "maria@teste.com"))
                 .thenReturn(requester);
 
-        RequesterRequest request = new RequesterRequest("12345678901", "Maria Silva", "maria@teste.com");
+        RequesterRequest request = new RequesterRequest("11144477735", "Maria Silva", "maria@teste.com");
 
         mockMvc.perform(post("/requesters")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.document").value("12345678901"))
+                .andExpect(jsonPath("$.document").value("11144477735"))
                 .andExpect(jsonPath("$.active").value(true));
     }
 
@@ -65,11 +66,96 @@ public class RequesterControllerTest {
     }
 
     @Test
-    void shouldReturn409WhenDocumentIsDuplicated() throws Exception {
+    void shouldReturn400WhenDocumentHasInvalidCheckDigit() throws Exception {
         when(createRequesterUseCase.execute(any(), any(), any()))
-                .thenThrow(new RequesterAlreadyExistsException("12345678901"));
+                .thenThrow(new DocumentInvalidException("Document must be a valid CPF (11 digits) or CNPJ (14 digits)"));
 
         RequesterRequest request = new RequesterRequest("12345678901", "Maria Silva", "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("DOCUMENT_INVALID"));
+    }
+
+    @Test
+    void shouldReturn400WhenDocumentIsShorterThanMinLength() throws Exception {
+        RequesterRequest request = new RequesterRequest("1234567890", "Maria Silva", "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION"));
+    }
+
+    @Test
+    void shouldReturn400WhenDocumentIsLongerThanMaxLength() throws Exception {
+        RequesterRequest request = new RequesterRequest("123456789012345", "Maria Silva", "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION"));
+    }
+
+    @Test
+    void shouldReturn400WhenNameIsShorterThanMinLength() throws Exception {
+        RequesterRequest request = new RequesterRequest("11144477735", "A", "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION"));
+    }
+
+    @Test
+    void shouldReturn400WhenNameIsLongerThanMaxLength() throws Exception {
+        RequesterRequest request = new RequesterRequest("11144477735", "A".repeat(101), "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION"));
+    }
+
+    @Test
+    void shouldCreateRequesterWhenNameIsAtMinLengthBoundary() throws Exception {
+        Requester requester = Requester.create("11144477735", "Ab", "maria@teste.com");
+        when(createRequesterUseCase.execute("11144477735", "Ab", "maria@teste.com")).thenReturn(requester);
+
+        RequesterRequest request = new RequesterRequest("11144477735", "Ab", "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldCreateRequesterWhenNameIsAtMaxLengthBoundary() throws Exception {
+        String name = "A".repeat(100);
+        Requester requester = Requester.create("11144477735", name, "maria@teste.com");
+        when(createRequesterUseCase.execute("11144477735", name, "maria@teste.com")).thenReturn(requester);
+
+        RequesterRequest request = new RequesterRequest("11144477735", name, "maria@teste.com");
+
+        mockMvc.perform(post("/requesters")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldReturn409WhenDocumentIsDuplicated() throws Exception {
+        when(createRequesterUseCase.execute(any(), any(), any()))
+                .thenThrow(new RequesterAlreadyExistsException("11144477735"));
+
+        RequesterRequest request = new RequesterRequest("11144477735", "Maria Silva", "maria@teste.com");
 
         mockMvc.perform(post("/requesters")
                         .contentType("application/json")
@@ -80,12 +166,12 @@ public class RequesterControllerTest {
 
     @Test
     void shouldGetRequesterById() throws Exception {
-        Requester requester = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
         when(getRequesterUseCase.byId(requester.id())).thenReturn(requester);
 
         mockMvc.perform(get("/requesters/{id}", requester.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.document").value("12345678901"));
+                .andExpect(jsonPath("$.document").value("11144477735"));
     }
 
     @Test
@@ -96,6 +182,12 @@ public class RequesterControllerTest {
         mockMvc.perform(get("/requesters/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("REQUESTER_NOT_FOUND"));
+    }
+
+    @Test
+    void shouldReturn400WhenIdIsNotAValidUuid() throws Exception {
+        mockMvc.perform(get("/requesters/{id}", "not-a-valid-uuid"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -117,5 +209,11 @@ public class RequesterControllerTest {
         mockMvc.perform(get("/requesters/{id}/validation", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.validation").value(false));
+    }
+
+    @Test
+    void shouldReturn400WhenValidationIdIsNotAValidUuid() throws Exception {
+        mockMvc.perform(get("/requesters/{id}/validation", "not-a-valid-uuid"))
+                .andExpect(status().isBadRequest());
     }
 }
