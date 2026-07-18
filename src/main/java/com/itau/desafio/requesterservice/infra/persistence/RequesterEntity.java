@@ -30,7 +30,6 @@ public class RequesterEntity {
     private Instant createdAt;
 
     protected RequesterEntity() {
-        // exigido pelo JPA
     }
 
     public RequesterEntity(UUID id, String document, String name, String email, boolean active, Instant createdAt) {

@@ -27,7 +27,7 @@ class ObservabilityConfigTest {
     }
 
     @Test
-    void deveExcluirObservacoesDoHealthCheck() {
+    void shouldExcludeHealthCheckObservations() {
         when(request.getRequestURI()).thenReturn("/jv-requester-service/actuator/health");
         ServerRequestObservationContext context = new ServerRequestObservationContext(request, null);
 
@@ -35,7 +35,7 @@ class ObservabilityConfigTest {
     }
 
     @Test
-    void deveExcluirObservacoesDoPrometheus() {
+    void shouldExcludePrometheusObservations() {
         when(request.getRequestURI()).thenReturn("/jv-requester-service/actuator/prometheus");
         ServerRequestObservationContext context = new ServerRequestObservationContext(request, null);
 
@@ -43,7 +43,7 @@ class ObservabilityConfigTest {
     }
 
     @Test
-    void deveManterObservacoesDeOutrosEndpoints() {
+    void shouldKeepObservationsForOtherEndpoints() {
         when(request.getRequestURI()).thenReturn("/jv-requester-service/requesters");
         ServerRequestObservationContext context = new ServerRequestObservationContext(request, null);
 
@@ -51,7 +51,7 @@ class ObservabilityConfigTest {
     }
 
     @Test
-    void deveManterObservacoesDeContextosQueNaoSaoDeRequisicaoHttp() {
+    void shouldKeepObservationsForNonHttpRequestContexts() {
         Observation.Context context = new Observation.Context();
 
         assertThat(predicate.test("qualquer.observacao", context)).isTrue();

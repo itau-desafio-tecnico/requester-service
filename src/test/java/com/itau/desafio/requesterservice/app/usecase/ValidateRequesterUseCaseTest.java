@@ -28,23 +28,23 @@ class ValidateRequesterUseCaseTest {
     }
 
     @Test
-    void deveRetornarTrueQuandoSolicitanteAtivo() {
-        Requester ativo = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
-        when(repository.findById(ativo.id())).thenReturn(Optional.of(ativo));
+    void shouldReturnTrueWhenRequesterIsActive() {
+        Requester active = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
+        when(repository.findById(active.id())).thenReturn(Optional.of(active));
 
-        assertThat(useCase.execute(ativo.id())).isTrue();
+        assertThat(useCase.execute(active.id())).isTrue();
     }
 
     @Test
-    void deveRetornarFalseQuandoSolicitanteInativo() {
-        Requester deactivate = Requester.create("12345678901", "Maria Silva", "maria@teste.com").deactivate();
+    void shouldReturnFalseWhenRequesterIsInactive() {
+        Requester deactivate = Requester.create("11144477735", "Maria Silva", "maria@teste.com").deactivate();
         when(repository.findById(deactivate.id())).thenReturn(Optional.of(deactivate));
 
         assertThat(useCase.execute(deactivate.id())).isFalse();
     }
 
     @Test
-    void deveRetornarFalseQuandoSolicitanteNaoExiste() {
+    void shouldReturnFalseWhenRequesterDoesNotExist() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 

@@ -26,11 +26,11 @@ class RequesterRepositoryImplTest {
 
     @Test
     void shouldMapDomainToEntityAndSave() {
-        Requester requester = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
-        RequesterEntity entitySalva = new RequesterEntity(
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
+        RequesterEntity savedEntity = new RequesterEntity(
                 requester.id(), requester.document(), requester.name(),
                 requester.email(), requester.active(), requester.createdAt());
-        when(jpaRepository.save(org.mockito.ArgumentMatchers.any(RequesterEntity.class))).thenReturn(entitySalva);
+        when(jpaRepository.save(org.mockito.ArgumentMatchers.any(RequesterEntity.class))).thenReturn(savedEntity);
 
         Requester saved = repository.save(requester);
 
@@ -38,20 +38,20 @@ class RequesterRepositoryImplTest {
 
         ArgumentCaptor<RequesterEntity> captor = ArgumentCaptor.forClass(RequesterEntity.class);
         org.mockito.Mockito.verify(jpaRepository).save(captor.capture());
-        assertThat(captor.getValue().getDocument()).isEqualTo("12345678901");
+        assertThat(captor.getValue().getDocument()).isEqualTo("11144477735");
     }
 
     @Test
     void shouldMapEntityToDomainWhenSearchingById() {
-        Requester requester = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
         RequesterEntity entity = new RequesterEntity(
                 requester.id(), requester.document(), requester.name(),
                 requester.email(), requester.active(), requester.createdAt());
         when(jpaRepository.findById(requester.id())).thenReturn(Optional.of(entity));
 
-        Optional<Requester> encontrado = repository.findById(requester.id());
+        Optional<Requester> found = repository.findById(requester.id());
 
-        assertThat(encontrado).contains(requester);
+        assertThat(found).contains(requester);
     }
 
     @Test
@@ -64,19 +64,19 @@ class RequesterRepositoryImplTest {
 
     @Test
     void shouldDelegateExistsByDocument() {
-        when(jpaRepository.existsByDocument("12345678901")).thenReturn(true);
+        when(jpaRepository.existsByDocument("11144477735")).thenReturn(true);
 
-        assertThat(repository.existsByDocument("12345678901")).isTrue();
+        assertThat(repository.existsByDocument("11144477735")).isTrue();
     }
 
     @Test
     void shouldMapEntityToDomainWhenSearchingByDocument() {
-        Requester requester = Requester.create("12345678901", "Maria Silva", "maria@teste.com");
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
         RequesterEntity entity = new RequesterEntity(
                 requester.id(), requester.document(), requester.name(),
                 requester.email(), requester.active(), requester.createdAt());
-        when(jpaRepository.findByDocument("12345678901")).thenReturn(Optional.of(entity));
+        when(jpaRepository.findByDocument("11144477735")).thenReturn(Optional.of(entity));
 
-        assertThat(repository.findByDocument("12345678901")).contains(requester);
+        assertThat(repository.findByDocument("11144477735")).contains(requester);
     }
 }
