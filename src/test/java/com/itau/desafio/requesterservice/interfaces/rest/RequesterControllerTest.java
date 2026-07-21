@@ -2,10 +2,12 @@ package com.itau.desafio.requesterservice.interfaces.rest;
 
 import com.itau.desafio.requesterservice.app.usecase.CreateRequesterUseCase;
 import com.itau.desafio.requesterservice.app.usecase.GetRequesterUseCase;
+import com.itau.desafio.requesterservice.app.usecase.ListRequestersUseCase;
 import com.itau.desafio.requesterservice.app.usecase.ValidateRequesterUseCase;
 import com.itau.desafio.requesterservice.domain.exception.DocumentInvalidException;
 import com.itau.desafio.requesterservice.domain.exception.RequesterAlreadyExistsException;
 import com.itau.desafio.requesterservice.domain.exception.RequesterNotFoundException;
+import com.itau.desafio.requesterservice.domain.model.PagedResult;
 import com.itau.desafio.requesterservice.domain.model.Requester;
 import com.itau.desafio.requesterservice.interfaces.rest.dto.RequesterRequest;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +41,9 @@ public class RequesterControllerTest {
 
     @MockitoBean
     private ValidateRequesterUseCase validateRequesterUseCase;
+
+    @MockitoBean
+    private ListRequestersUseCase listRequestersUseCase;
 
     @Test
     void shouldCreateRequesterAndReturn201() throws Exception {
@@ -214,6 +220,48 @@ public class RequesterControllerTest {
     @Test
     void shouldReturn400WhenValidationIdIsNotAValidUuid() throws Exception {
         mockMvc.perform(get("/requesters/{id}/validation", "not-a-valid-uuid"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldListRequestersWithDefaultPagination() throws Exception {
+        Requester requester = Requester.create("11144477735", "Maria Silva", "maria@teste.com");
+        PagedResult<Requester> pagedResult = PagedResult.of(List.of(requester), 0, 20, 1);
+        when(listRequestersUseCase.execute(0, 20, null)).thenReturn(pagedResult);
+
+        mockMvc.perform(get("/requesters"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].document").value("11144477735"))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    void shouldListRequestersFilteredByActive() throws Exception {
+        PagedResult<Requester> pagedResult = PagedResult.of(List.of(), 0, 20, 0);
+        when(listRequestersUseCase.execute(0, 20, true)).thenReturn(pagedResult);
+
+        mockMvc.perform(get("/requesters").param("active", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+    }
+
+    @Test
+    void shouldListRequestersWithCustomPagination() throws Exception {
+        PagedResult<Requester> pagedResult = PagedResult.of(List.of(), 2, 5, 0);
+        when(listRequestersUseCase.execute(2, 5, null)).thenReturn(pagedResult);
+
+        mockMvc.perform(get("/requesters").param("page", "2").param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(2))
+                .andExpect(jsonPath("$.size").value(5));
+    }
+
+    @Test
+    void shouldReturn400WhenPageIsNotANumber() throws Exception {
+        mockMvc.perform(get("/requesters").param("page", "abc"))
                 .andExpect(status().isBadRequest());
     }
 }

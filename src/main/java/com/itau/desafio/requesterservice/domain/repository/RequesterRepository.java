@@ -1,5 +1,6 @@
 package com.itau.desafio.requesterservice.domain.repository;
 
+import com.itau.desafio.requesterservice.domain.model.PagedResult;
 import com.itau.desafio.requesterservice.domain.model.Requester;
 
 import java.util.Optional;
@@ -13,4 +14,6 @@ public interface RequesterRepository {
     Optional<Requester> findByDocument(String document);
 
     boolean existsByDocument(String document);
+
+    PagedResult<Requester> findAll(int page, int size, Boolean active);
 }
