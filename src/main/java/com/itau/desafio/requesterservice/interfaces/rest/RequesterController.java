@@ -2,7 +2,11 @@ package com.itau.desafio.requesterservice.interfaces.rest;
 
 import com.itau.desafio.requesterservice.app.usecase.CreateRequesterUseCase;
 import com.itau.desafio.requesterservice.app.usecase.GetRequesterUseCase;
+import com.itau.desafio.requesterservice.app.usecase.ListRequestersUseCase;
 import com.itau.desafio.requesterservice.app.usecase.ValidateRequesterUseCase;
+import com.itau.desafio.requesterservice.domain.model.PagedResult;
+import com.itau.desafio.requesterservice.domain.model.Requester;
+import com.itau.desafio.requesterservice.interfaces.rest.dto.RequesterPageResponse;
 import com.itau.desafio.requesterservice.interfaces.rest.dto.RequesterRequest;
 import com.itau.desafio.requesterservice.interfaces.rest.dto.RequesterResponse;
 import com.itau.desafio.requesterservice.interfaces.rest.dto.ValidationResponse;
@@ -25,11 +29,13 @@ public class RequesterController {
     private final CreateRequesterUseCase  createRequesterUseCase;
     private final GetRequesterUseCase getRequesterUseCase;
     private final ValidateRequesterUseCase validateRequesterUseCase;
+    private final ListRequestersUseCase listRequestersUseCase;
 
-    public RequesterController(CreateRequesterUseCase createRequesterUseCase, GetRequesterUseCase getRequesterUseCase, ValidateRequesterUseCase validateRequesterUseCase) {
+    public RequesterController(CreateRequesterUseCase createRequesterUseCase, GetRequesterUseCase getRequesterUseCase, ValidateRequesterUseCase validateRequesterUseCase, ListRequestersUseCase listRequestersUseCase) {
         this.createRequesterUseCase = createRequesterUseCase;
         this.getRequesterUseCase = getRequesterUseCase;
         this.validateRequesterUseCase = validateRequesterUseCase;
+        this.listRequestersUseCase = listRequestersUseCase;
     }
 
     @PostMapping
@@ -42,6 +48,16 @@ public class RequesterController {
                 .buildAndExpand(requester.id())
                 .toUri();
         return ResponseEntity.created(location).body(requester);
+    }
+
+    @GetMapping
+    public ResponseEntity<RequesterPageResponse> getAll(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        log.info("Listing requesters page={} size={} active={}", page, size, active);
+        PagedResult<Requester> result = listRequestersUseCase.execute(page, size, active);
+        return ResponseEntity.ok(RequesterPageResponse.from(result));
     }
 
     @GetMapping("/{id}")
